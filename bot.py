@@ -95,9 +95,9 @@ class AdminCommands:
         
         if hasattr(update, 'callback_query') and update.callback_query:
             await update.callback_query.answer()
-            await update.callback_query.edit_message_text(admin_message, parse_mode='Markdown', reply_markup=reply_markup)
+            await update.callback_query.edit_message_text(admin_message, parse_mode='HTML', reply_markup=reply_markup)
         else:
-            await update.message.reply_text(admin_message, parse_mode='Markdown', reply_markup=reply_markup)
+            await update.message.reply_text(admin_message, parse_mode='HTML', reply_markup=reply_markup)
         
     async def admin_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Maneja los callbacks del panel de administración."""
@@ -265,7 +265,7 @@ class AdminCommands:
         keyboard = [[InlineKeyboardButton("🔙 Volver", callback_data="admin_panel")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(stats_message, parse_mode='Markdown', reply_markup=reply_markup)
+        await query.edit_message_text(stats_message, parse_mode='HTML', reply_markup=reply_markup)
 
     async def show_reports(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Muestra los reportes pendientes."""
@@ -309,20 +309,20 @@ class AdminCommands:
                     chat_id=query.from_user.id,
                     photo=report["evidence_file_id"],
                     caption=report_text,
-                    parse_mode='Markdown',
+                    parse_mode='HTML',
                     reply_markup=reply_markup
                 )
             except Exception as e:
                 logger.error(f"Error al enviar foto de reporte: {e}")
                 await query.edit_message_text(
                     report_text + "\n\n*Evidencia:* Disponible pero no se pudo cargar",
-                    parse_mode='Markdown',
+                    parse_mode='HTML',
                     reply_markup=reply_markup
                 )
         else:
             await query.edit_message_text(
                 report_text + "\n\n*Evidencia:* No proporcionada",
-                parse_mode='Markdown',
+                parse_mode='HTML',
                 reply_markup=reply_markup
             )
 
@@ -440,7 +440,7 @@ class AdminCommands:
         keyboard = [[InlineKeyboardButton("🔙 Volver", callback_data="admin_panel")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(reports_text, parse_mode='Markdown', reply_markup=reply_markup)
+        await query.edit_message_text(reports_text, parse_mode='HTML', reply_markup=reply_markup)
 
     async def process_ban(self, update: Update, context: ContextTypes.DEFAULT_TYPE, user_id_to_ban):
         """Procesa la acción de banear a un usuario desde el panel admin."""
@@ -522,7 +522,7 @@ class AdminCommands:
         await query.edit_message_text(
             "🚫 *Gestión de Baneos*\n\n"
             "Selecciona una acción:",
-            parse_mode='Markdown',
+            parse_mode='HTML',
             reply_markup=reply_markup
         )
     
@@ -555,7 +555,7 @@ class AdminCommands:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(admin_message, parse_mode='Markdown', reply_markup=reply_markup)
+        await query.edit_message_text(admin_message, parse_mode='HTML', reply_markup=reply_markup)
     
     async def admin_search_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Solicita un ID de usuario para buscar información."""
@@ -564,7 +564,7 @@ class AdminCommands:
         await query.edit_message_text(
             "🔍 *Buscar Usuario por ID*\n\n"
             "Por favor, ingresa el ID del usuario que deseas buscar:",
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         
         # Store state to identify upcoming messages as user ID inputs
@@ -663,7 +663,7 @@ class AdminCommands:
             if hasattr(update, 'callback_query') and update.callback_query:
                 await update.callback_query.edit_message_text(user_info, parse_mode='Markdown', reply_markup=reply_markup)
             else:
-                await update.message.reply_text(user_info, parse_mode='Markdown', reply_markup=reply_markup)
+                await update.message.reply_text(user_info, parse_mode='HTML', reply_markup=reply_markup)
         else:
             text = f"No se encontró información para el usuario con ID {target_id}."
             keyboard = [[InlineKeyboardButton("🔙 Volver al Panel", callback_data="admin_panel")]]
@@ -680,7 +680,7 @@ class AdminCommands:
         await query.edit_message_text(
             "👑 *Añadir Administrador*\n\n"
             "Introduce el ID del usuario:",
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         application = context.application
         invoker_id = query.from_user.id
@@ -717,7 +717,7 @@ class AdminCommands:
         await query.edit_message_text(
             "👑 *Eliminar Administrador*\n\n"
             "Introduce el ID del administrador a eliminar:",
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         application = context.application
         invoker_id = query.from_user.id
@@ -754,7 +754,7 @@ class AdminCommands:
         await query.edit_message_text(
             "🚫 *Banear Usuario por ID*\n\n"
             "Introduce el ID del usuario que deseas banear:",
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         application = context.application
         invoker_id = query.from_user.id
@@ -785,7 +785,7 @@ class AdminCommands:
         await query.edit_message_text(
             "✅ *Desbanear Usuario por ID*\n\n"
             "Introduce el ID del usuario que deseas desbanear:",
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         application = context.application
         invoker_id = query.from_user.id
@@ -854,7 +854,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     # Verificar si el usuario está baneado
     if user_id in db.users and db.users[user_id].get("banned", False):
-        await delete_previous_and_send(context, user_id, "Lo sentimos, tu acceso a este bot ha sido restringido.")
+        await delete_previous_and_send(context, user_id, "Lo sentimos, tu acceso a este bot ha sido restringido." ,)
         return ConversationHandler.END
     
     # Configurar menú de comandos
@@ -875,9 +875,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
     
     welcome_message = (
-        f"👋 ¡Hola {user.first_name}! Bienvenido/a a *Anonymous Chat Bot*.\n\n"
+        f"👋 ¡Hola {user.first_name}! Bienvenido/a a <b>Anonymous Chat Bot</b>.\n\n"
         "Este bot te permite chatear anónimamente con otras personas.\n\n"
-        "*Instrucciones:*\n"
+        "<b>Instrucciones:</b>\n"
         "1️⃣ Primero debes seleccionar tu género\n"
         "2️⃣ Luego podrás buscar a alguien con quien chatear\n"
         "3️⃣ Una vez emparejado, podrás enviar mensajes, fotos, stickers y más\n"
@@ -908,7 +908,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             user_id, 
             f"{welcome_message}\n\nTu género actual: {gender_emoji} {gender_name}",
             reply_markup=reply_markup,
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         return ConversationHandler.END
     else:
@@ -925,7 +925,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             user_id,
             f"{welcome_message}\n\nPor favor, selecciona tu género:",
             reply_markup=reply_markup,
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         return GENDER_SELECTION
 
@@ -991,7 +991,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         return
     
     help_message = (
-        "*Comandos disponibles:*\n"
+        "<b>Comandos disponibles:</b>\n"
         "/start - Iniciar el bot\n"
         "/find - Buscar una pareja para chatear\n"
         "/end - Finalizar la conversación actual\n"
@@ -1000,22 +1000,22 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/report - Reportar a un usuario\n"
         "/help - Mostrar este mensaje de ayuda\n\n"
     )
-    
+
     if db.is_admin(user_id):
         help_message += (
-            "*Comandos de administrador:*\n"
+            "<b>Comandos de administrador:</b>\n"
             "/admin - Acceder al panel de administrador\n"
-            "/ban <user_id> - Banear a un usuario\n"
-            "/unban <user_id> - Desbanear a un usuario\n"
-            "/add_admin <user_id> - Añadir administrador\n"
-            "/remove_admin <user_id> - Eliminar administrador\n"
+            "/ban &lt;user_id&gt; - Banear a un usuario\n"
+            "/unban &lt;user_id&gt; - Desbanear a un usuario\n"
+            "/add_admin &lt;user_id&gt; - Añadir administrador\n"
+            "/remove_admin &lt;user_id&gt; - Eliminar administrador\n"
         )
         
         if db.is_super_admin(user_id):
             help_message += (
-                "*Comandos de superadministrador:*\n"
-                "/add_admin <user_id> - Añadir administrador\n"
-                "/remove_admin <user_id> - Eliminar administrador\n"
+                "<b>Comandos de superadministrador:</b>\n"
+                "/add_admin &lt;user_id&gt; - Añadir administrador\n"
+                "/remove_admin &lt;user_id&gt; - Eliminar administrador\n"
             )
     
     keyboard = [
@@ -1029,7 +1029,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         user_id, 
         help_message, 
         reply_markup=reply_markup,
-        parse_mode='Markdown'
+        parse_mode='HTML'
     )
 
 async def find_partner_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -1084,7 +1084,7 @@ async def find_partner(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         waiting_counts = db.get_waiting_counts()
 
         gender_stats_msg = (
-            "📊 *Usuarios esperando por género:*\n"
+            "📊 <b>Usuarios esperando por género:</b>\n"
             f"👨 Hombres: {waiting_counts['male']}\n"
             f"👩 Mujeres: {waiting_counts['female']}\n"
             f"🧑 No Binarios: {waiting_counts['non_binary']}\n\n"
@@ -1099,14 +1099,14 @@ async def find_partner(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         if isinstance(update, Update) and update.callback_query:
-            await query.edit_message_text(gender_stats_msg, parse_mode='Markdown', reply_markup=reply_markup)
+            await query.edit_message_text(gender_stats_msg, parse_mode='HTML', reply_markup=reply_markup)
         else:
             await delete_previous_and_send(
                 context,
                 user_id,
                 gender_stats_msg,
                 reply_markup=reply_markup,
-                parse_mode='Markdown'
+                parse_mode='HTML'
             )
 
         return WAITING_MATCH
@@ -1180,11 +1180,11 @@ async def match_by_gender(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await delete_previous_and_send(
             context,
             user_id,
-            f"🎉 *¡Nueva conversación iniciada!*\n\n"
+            f"🎉 <b>¡Nueva conversación iniciada!</b>\n\n"
             f"Has sido emparejado con un {get_gender_emoji(partner_gender)} {get_gender_name(partner_gender)}.\n\n"
             f"Tu identidad es anónima. Puedes comenzar a chatear ahora.",
             reply_markup=reply_markup,
-            parse_mode='Markdown',
+            parse_mode='HTML',
             clear_all=True  # Esto borrará todos los mensajes anteriores
         )
         
@@ -1192,11 +1192,11 @@ async def match_by_gender(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await delete_previous_and_send(
             context,
             matched_partner,
-            f"🎉 *¡Nueva conversación iniciada!*\n\n"
+            f"🎉 <b>¡Nueva conversación iniciada!</b>\n\n"
             f"Has sido emparejado con un {get_gender_emoji(user_gender)} {get_gender_name(user_gender)}.\n\n"
             f"Tu identidad es anónima. Puedes comenzar a chatear ahora.",
             reply_markup=reply_markup,
-            parse_mode='Markdown',
+            parse_mode='HTML',
             clear_all=True  # Esto borrará todos los mensajes anteriores
         )
         
@@ -1349,8 +1349,8 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await query.edit_message_text(
-        "🏠 *Menú Principal*\n\nSelecciona una opción:",
-        parse_mode='Markdown',
+        "🏠 <b>Menú Principal</b>\n\nSelecciona una opción:",
+        parse_mode='HTML',
         reply_markup=reply_markup
     )
 
@@ -1408,13 +1408,13 @@ async def show_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     if isinstance(update, Update) and update.callback_query:
         await query.edit_message_text(
             stats_message,
-            parse_mode='Markdown',
+            parse_mode='HTML',
             reply_markup=reply_markup
         )
     else:
         await update.message.reply_text(
             stats_message,
-            parse_mode='Markdown',
+            parse_mode='HTML',
             reply_markup=reply_markup
         )
 
@@ -1434,7 +1434,7 @@ async def report_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text(
         "🚨 *Reporte de Usuario*\n\n"
         "Por favor, describe el motivo del reporte. Sé específico sobre el comportamiento inapropiado:",
-        parse_mode='Markdown'
+        parse_mode='HTML'
     )
     
     return REPORT_REASON
@@ -1486,7 +1486,7 @@ async def report_evidence(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                             f"*De:* Usuario #{user_id}\n"
                             f"*Contra:* Usuario #{reported_id}\n"
                             f"*Motivo:* {reason}",
-                    parse_mode='Markdown'
+                    parse_mode='HTML'
                 )
             else:
                                 await context.bot.send_message(
@@ -1496,7 +1496,7 @@ async def report_evidence(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                          f"*Contra:* Usuario #{reported_id}\n"
                          f"*Motivo:* {reason}\n"
                          f"*Evidencia:* No proporcionada",
-                    parse_mode='Markdown'
+                    parse_mode='HTML'
                 )
         except Exception as e:
             logger.error(f"Error al enviar reporte a admin {admin_id}: {e}")
@@ -1556,9 +1556,9 @@ async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     if isinstance(update, Update) and update.callback_query:
-        await query.edit_message_text(admin_message, parse_mode='Markdown', reply_markup=reply_markup)
+        await query.edit_message_text(admin_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
-        await update.message.reply_text(admin_message, parse_mode='Markdown', reply_markup=reply_markup)
+        await update.message.reply_text(admin_message, parse_mode='HTML', reply_markup=reply_markup)
 
 async def view_reports(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Muestra los reportes recibidos."""
@@ -1620,20 +1620,20 @@ async def view_reports(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 chat_id=user_id,
                 photo=evidence_file_id,
                 caption=report_text,
-                parse_mode='Markdown',
+                parse_mode='HTML',
                 reply_markup=reply_markup
             )
         except Exception as e:
             logger.error(f"Error al enviar foto de reporte: {e}")
             await query.edit_message_text(
                 report_text + "\n\n*Evidencia:* Disponible pero no se pudo cargar",
-                parse_mode='Markdown',
+                parse_mode='HTML',
                 reply_markup=reply_markup
             )
     else:
         await query.edit_message_text(
             report_text + "\n\n*Evidencia:* No proporcionada",
-            parse_mode='Markdown',
+            parse_mode='HTML',
             reply_markup=reply_markup
         )
 
@@ -1762,7 +1762,7 @@ async def admin_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     keyboard = [[InlineKeyboardButton("🔙 Volver", callback_data="admin_panel")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.edit_message_text(stats_message, parse_mode='Markdown', reply_markup=reply_markup)
+    await query.edit_message_text(stats_message, parse_mode='HTML', reply_markup=reply_markup)
 
 async def manage_admins(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Muestra panel para gestionar administradores."""
@@ -1791,7 +1791,7 @@ async def manage_admins(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.edit_message_text(admin_message, parse_mode='Markdown', reply_markup=reply_markup)
+    await query.edit_message_text(admin_message, parse_mode='HTML', reply_markup=reply_markup)
 
 async def add_admin_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Inicia el proceso de añadir administrador."""
@@ -2010,7 +2010,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     elif query.data == "help":
         await query.answer()
         help_message = (
-            "*Comandos disponibles:*\n"
+            "<b>Comandos disponibles:</b>\n"
             "/start - Iniciar el bot\n"
             "/find - Buscar una pareja para chatear\n"
             "/end - Finalizar la conversación actual\n"
@@ -2031,7 +2031,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         keyboard = [[InlineKeyboardButton("🏠 Menú Principal", callback_data="main_menu")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(help_message, parse_mode='Markdown', reply_markup=reply_markup)
+        await query.edit_message_text(help_message, parse_mode='HTML', reply_markup=reply_markup)
         return ConversationHandler.END
     
     # Si llegamos aquí, es un callback no manejado
@@ -2148,7 +2148,7 @@ def main() -> None:
 last_bot_messages = {}  # {user_id: [{"chat_id": chat_id, "message_id": message_id}, ...]}
 MAX_TRACKED_MESSAGES = 10  # Número máximo de mensajes a rastrear por usuario
 
-async def delete_previous_and_send(context, user_id, text, reply_markup=None, parse_mode=None, clear_all=False):
+async def delete_previous_and_send(context, user_id, text, reply_markup=None, parse_mode='HTML', clear_all=False):
     """Elimina mensajes anteriores y envía uno nuevo.
     
     Si clear_all=True, intenta eliminar todos los mensajes rastreados.
@@ -2205,9 +2205,6 @@ async def try_delete_user_message(update: Update):
             await update.message.delete()
     except Exception as e:
         logger.debug(f"No se pudo eliminar el mensaje del usuario: {e}")
-
-# Rastreo de mensajes
-last_bot_messages = {}  # {user_id: [{"chat_id": chat_id, "message_id": message_id}, ...]}
 
 if __name__ == "__main__":
     main()
